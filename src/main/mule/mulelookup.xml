@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="b11f0276-497a-4561-93d1-8805556decb9" >
+		<http:listener-connection host="localhost" port="8081" />
+	</http:listener-config>
+	<flow name="mulelookupFlow" doc:id="e4e91adc-0a6b-434c-9323-459313f429d8" >
+		<http:listener doc:name="Listener" doc:id="bc649d78-8821-4eda-858c-7ff27fd0ca11" config-ref="HTTP_Listener_config" path="/lookup"/>
+		<set-variable value="pubvar" doc:name="Set Variable" doc:id="7f951ded-c693-45f1-9f12-0b557b6e2866" variableName="pubvar"/>
+		<set-payload value="pubpay" doc:name="Set Payload" doc:id="c5c4920d-608b-4e7b-8034-a7375ec4ca25" />
+		<ee:transform doc:name="Transform Message" doc:id="35f35ccc-7581-4dee-990e-942457c0560c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+Mule::lookup("pflow",payload,1000000)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="dece8631-7d59-461b-bb82-d40474b3ef5c" message="#[vars.pvar]"/>
+	</flow>
+	<flow name="pflow" doc:id="0011214b-3bef-4f4c-ae87-0cb819c1e5ff" >
+		<set-payload value="privpay" doc:name="Set Payload" doc:id="0d94dc98-1cd9-4ec0-87df-609fcf7b256d" />
+		<set-variable value="pvar" doc:name="Set Variable" doc:id="3c583e4e-c860-46b3-b9a2-5e4ae532f7d3" variableName="pvar"/>
+	</flow>
+	<sub-flow name="sflow" doc:id="841cbe32-b251-43fc-b7f6-a92d3ad03c33" >
+		<set-payload value="subpay" doc:name="Set Payload" doc:id="0a322de1-7b55-40a2-bbfb-366aab6e650c" />
+		<set-variable value="svar" doc:name="Set Variable" doc:id="f3700db2-2b0e-4e8e-8c23-a023596de8c5" variableName="sflow"/>
+	</sub-flow>
+</mule>
